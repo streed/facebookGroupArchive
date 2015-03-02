@@ -16,7 +16,7 @@ def convert_data(raw_data):
       comments=convert_comments(raw_data.get("comments", {"data":[]})["data"]),
       upvote=0,
       downvote=0,
-      approved=False,
+      approved=True,
       deleted=False,
       limbo=False
   )
