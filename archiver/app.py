@@ -106,10 +106,7 @@ class FeedAdminEndpoint(restful.Resource):
     if not original:
       abort(404, message="Could not find a feed item for {}".format(post_id))
 
-    if validate_new(new, original):
-      r.table("feed").get(post_id).replace(unclean_feed_item(new)).run(db.conn)
-    else:
-      abort(500, message="New doc and old doc differ too much.")
+    r.table("feed").get(post_id).replace(unclean_feed_item(new)).run(db.conn)
 
 api.add_resource(FeedSearchArchive, '/feed/search')
 api.add_resource(FeedAdminEndpoint, '/feed/admin/<string:post_id>')

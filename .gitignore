@@ -56,3 +56,4 @@ target/
 localenv/
 *.swo
 *.swp
+test.json
