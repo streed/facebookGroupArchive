@@ -1,13 +1,15 @@
 import os
 import rethinkdb as r
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask.ext import restful
-from flask.ext.restful import reqparse
+from flask.ext.restful import reqparse, abort
 from flask.json import JSONEncoder
 from flask_rethinkdb import RethinkDB
 
 from elasticsearch import Elasticsearch
+
+from .util.group import clean_feed_item, validate_new
 
 app = Flask(__name__)
 app.json_encoder = JSONEncoder()
@@ -27,7 +29,7 @@ client = Elasticsearch()
 
 BOOSTING_FACTOR = 1.35
 
-class SearchArchive(restful.Resource):
+class FeedSearchArchive(restful.Resource):
   def get(self):
     args = parser.parse_args()
     offset = args["offset"] or 0
@@ -88,31 +90,28 @@ class SearchArchive(restful.Resource):
 
     return [hit["_source"] for hit in response["hits"]["hits"]]
 
-def clean_feed_item(item):
-  item["create"] = item["create"].isoformat()
-  item["updated"] = item["updated"].isoformat()
-  comments = []
-  for c in item["comments"]:
-    c["created_time"] = c["created_time"].isoformat()
-    comments.append(c)
-  item["comments"] = comments
-
-  return item
 
 class FeedEndpoint(restful.Resource):
   def get(self, post_id):
     return clean_feed_item(r.table("feed").get(post_id).run(db.conn))
 
-@app.route("/")
-def index():
-  return render_template("index.html")
+class FeedAdminEndpoint(restful.Resource):
+  def get(self, post_id):
+    return clean_feed_item(r.table("feed").get(post_id).run(db.conn))
 
-@app.route("/post/<post_id>")
-def post(post_id):
-  return render_template("post.html", post_id=post_id)
+  def put(self, post_id):
+    new = request.json
+    original = clean_feed_item(r.table("feed").get(post_id).run(db.conn))
 
-api.add_resource(SearchArchive, '/search')
+    if not original:
+      abort(404, message="Could not find a feed item for {}".format(post_id))
+
+    if validate_new(new, original):
+      r.table("feed").get(post_id).replace(unclean_feed_item(new)).run(db.conn)
+    else:
+      abort(500, message="New doc and old doc differ too much.")
+
+api.add_resource(FeedSearchArchive, '/feed/search')
+api.add_resource(FeedAdminEndpoint, '/feed/admin/<string:post_id>')
 api.add_resource(FeedEndpoint, '/feed/<string:post_id>')
 
-if __name__ == '__main__':
-  app.run(debug=True)
