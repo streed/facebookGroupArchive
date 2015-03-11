@@ -1,12 +1,20 @@
 import json
 import sys
+import os
 
 from facepy import GraphAPI
+from facepy.utils import get_application_access_token
 import rethinkdb as r
 
 from util.group import convert_data
 
 if __name__ == "__main__":
+
+  APPLICATION_ID = os.environ["FACEBOOK_APPLICATION_ID"]
+  APPLICATION_SECRET = os.environ["FACEBOOK_APPLICATION_SECRET"]
+
+  access_token = get_application_access_token(APPLICATION_ID, APPLICATION_SECRET)
+
   r.connect("localhost", 28015).repl()
   try:
     r.db_create("facebookindex").run()
@@ -21,7 +29,6 @@ if __name__ == "__main__":
     print "Table `feed` already exists"
 
   group_id = sys.argv[1]
-  access_token = sys.argv[2]
 
   graph = GraphAPI(access_token)
   pages = graph.get("%s/feed" % group_id, page=True, retry=3, limit=10000)
