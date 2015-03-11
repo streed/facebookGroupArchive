@@ -1,11 +1,13 @@
 import json
 import sys
+import rethinkdb as r
 
 from dateutil import parser
 from elasticsearch import Elasticsearch
 
 def convert_data(raw_data):
   return dict(
+      id=raw_data["id"],
       message=raw_data.get("message", ""),
       picture=raw_data.get("picture", ""),
       updated=parser.parse(raw_data["updated_time"]),
@@ -78,3 +80,4 @@ def validate_new(new, original):
     return False
 
   return True
+
