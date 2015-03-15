@@ -1,0 +1,22 @@
+{
+  "name": "facebookgrouparchive",
+  "version": "0.0.0",
+  "homepage": "https://github.com/streed/facebookgrouparchive",
+  "authors": [
+    "thelollies <rorystephenson@gmail.com>"
+  ],
+  "description": "Facebook group comment search",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.2",
+    "jquery": "~2.1.3",
+    "react": "~0.12.2"
+  }
+}
