@@ -5,30 +5,130 @@
     <title>Flask React</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- styles -->
+    <style>
+
+      body{
+        font-family: Verdana, Geneva, sans-serif !important;
+        margin: 0;
+      }
+      .search-header{
+        background-color: #1F1F1F;
+        margin: 0;
+        padding: 0.4em;
+        height: 3em;
+      }
+      .search-input{
+        height: 100%;
+        width: 100%;
+        outline: none;
+        border: none;
+        font-size: 1em;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box; padding: 0 15px 0 15px;
+      }
+      .search-row{
+        background: #EEEEEE;
+        padding: 1em;
+        border-style: none;
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-bottom-color: #CCCCCC;
+        width: 80%;
+        margin: 0 auto;
+      }
+      .search-row-subtext{
+        font-size: 0.7em;
+        color: gray;
+      }
+      a{
+        text-decoration: none;
+        color: black;
+      }
+
+    </style>
   </head>
   <body>
     <div class="container">
-      <h1>Flask React</h1>
-      <br>
       <div id="content"></div>
     </div>
     <!-- scripts -->
+    <script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bower_components/react/react.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bower_components/react/JSXTransformer.js') }}"></script>
     <script type="text/jsx">
 
-      /*** @jsx React.DOM */
+        /** @jsx React.DOM */
 
-      var helloWorld = React.createClass({
+        var SearchExample = React.createClass({
+
+        getInitialState: function(){
+             return { searchString: '' };
+        },
+
+         handleChange: function(e){
+
+            // If you comment out this line, the text box will not change its value.
+             // This is because in React, an input cannot change independently of the value
+             // that was assigned to it. In our case this is this.state.searchString.
+
+            this.setState({searchString:e.target.value});
+         },
+
         render: function() {
-          return (<h2>Greetings, from Real Python!</h2>)
-        }
-      });
 
-      React.render(
-        React.createElement(helloWorld, null),
-        document.getElementById('content')
-      );
+            var searchString = this.state.searchString.trim().toLowerCase();
+            var results = [];
+
+
+            if(searchString.length > 0){
+
+
+                search_url = "feed/search?limit=10&offset=0&q=" + searchString;
+                // Get the search results.
+                jQuery.ajax({url: search_url, success: function(result){
+                    results = result;
+                }, async: false});
+
+            }
+
+             return <div>
+                         <div className="search-header">
+                             <input className="search-input" type="text" value={this.state.searchString} onChange={this.handleChange} placeholder="Search here" />
+                         </div>
+
+
+                             { results.map(function(r){
+                                 message = r.message == undefined ? "" : r.message;
+                                 message = message.length > 100 ? message.substr(0,100-1)+'...' : message;
+
+                                 numComments = r.comments == undefined ? 0 : r.comments.length;
+
+                                 date = r.created == undefined ? "" : new Date(r.created).toLocaleDateString();
+
+                                 return <div className="search-row">
+                                            <div className="search-row-title">
+                                                <a href={"/feed/"+r.id}>{message}</a>
+                                            </div>
+                                            <div className="search-row-subtext">
+                                                {numComments} comments | {date}
+                                            </div>
+                                        </div>
+
+                             }) }
+
+
+                     </div>;
+
+             }
+        });
+
+        // Render the SearchExample component on the page
+
+        React.renderComponent(
+            <SearchExample items={ [] } />,
+            document.body
+        );
     </script>
   </body>
 </html>
