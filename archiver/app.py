@@ -29,6 +29,10 @@ client = Elasticsearch()
 
 BOOSTING_FACTOR = 1.35
 
+@app.route('/')
+def index():
+  return render_template('index.html')
+
 class FeedSearchArchive(restful.Resource):
   def get(self):
     args = parser.parse_args()
