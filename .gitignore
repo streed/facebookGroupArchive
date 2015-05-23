@@ -58,3 +58,5 @@ localenv/
 *.swp
 test.json
 test.yml
+
+node_modules/

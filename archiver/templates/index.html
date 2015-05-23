@@ -2,7 +2,7 @@
 <html>
   <head lang="en">
     <meta charset="UTF-8">
-    <title>Flask React</title>
+    <title>Slack Search</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- styles -->
     <style>
@@ -11,11 +11,12 @@
         font-family: Verdana, Geneva, sans-serif !important;
         margin: 0;
       }
+
       .search-header{
-        background-color: #1F1F1F;
+        background-color: #23A38F;
         margin: 0;
-        padding: 0.4em;
-        height: 3em;
+        padding: 0.2em;
+        height: 2em;
       }
       .search-input{
         height: 100%;
@@ -84,7 +85,7 @@
             if(searchString.length > 0){
 
 
-                search_url = "feed/search?limit=10&offset=0&q=" + searchString;
+                search_url = "feed/search?limit=100&offset=0&q=" + searchString;
                 // Get the search results.
                 jQuery.ajax({url: search_url, success: function(result){
                     results = result;
@@ -102,6 +103,9 @@
                                  message = r.message == undefined ? "" : r.message;
                                  message = message.length > 100 ? message.substr(0,100-1)+'...' : message;
 
+                                 upvotes = r.upvote == undefined ? 0 : r.upvote;
+                                 downvotes = r.downvote == undefined ? 0 : r.downvote;
+
                                  numComments = r.comments == undefined ? 0 : r.comments.length;
 
                                  date = r.created == undefined ? "" : new Date(r.created).toLocaleDateString();
@@ -111,7 +115,7 @@
                                                 <a href={"/feed/"+r.id}>{message}</a>
                                             </div>
                                             <div className="search-row-subtext">
-                                                {numComments} comments | {date}
+                                                {numComments} comments | {date} | {upvotes} upvote | {downvotes} downvote
                                             </div>
                                         </div>
 

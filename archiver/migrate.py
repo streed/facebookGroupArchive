@@ -31,13 +31,13 @@ if __name__ == "__main__":
   
   backfill = False
   if len(sys.argv) > 1:
-    backfill = sys.argv[1] == "backfill"
+    backfill = sys.argv[2] == "backfill"
 
   access_token = get_application_access_token(APPLICATION_ID, APPLICATION_SECRET)
   graph = GraphAPI(access_token)
   if backfill:
     print "BACKFILLING"
-    pages = graph.get("%s/feed" % group_id, page=True, retry=3, limit=10000)
+    pages = graph.get("%s/feed" % group_id, page=True, retry=3, limit=1)
   else:
     print "DOING ONLY PAST DAY"
     yesterday = datetime.datetime.now() - datetime.timedelta(days = 1)
@@ -60,3 +60,4 @@ if __name__ == "__main__":
         bulk = []
     i = i + 1
   r.db("facebookindex").table("feed").insert(bulk, conflict="update").run()
+
