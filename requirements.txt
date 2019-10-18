@@ -20,7 +20,7 @@ requests==2.5.1
 rethinkdb==1.16.0-2
 six==1.9.0
 stevedore==1.2.0
-urllib3==1.10
+urllib3==1.24.2
 virtualenv==12.0.7
 virtualenv-clone==0.2.5
 virtualenvwrapper==4.3.2
